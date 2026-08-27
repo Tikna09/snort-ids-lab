@@ -1,5 +1,0 @@
-### 1. Snort Installation and Initialization
-
-Snort was successfully installed and initialized on Ubuntu. The following screenshot shows Snort loading its detection engine, preprocessors, and beginning packet processing.
-
-[Snort Installation and Initialization]()
