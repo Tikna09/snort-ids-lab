@@ -1,22 +1,23 @@
 # Snort IDS Lab
 
-A hands-on Intrusion Detection System (IDS) lab using Snort to detect and monitor network traffic in a virtualized environment.
+A hands-on Intrusion Detection System (IDS) lab using Snort to detect and monitor network traffic in a controlled virtualized environment.
 
 ## Project Overview
 
 This project demonstrates how Snort can be configured with custom detection rules to generate alerts for different types of network traffic.
 
-The lab uses Ubuntu as the Snort IDS system and Windows as a testing machine.
+The lab uses Ubuntu as the Snort IDS system and Windows as the testing machine.
 
 ## Lab Environment
 
 | Component | Details |
 |---|---|
-| IDS | Snort |
+| IDS | Snort 2.9.15.1 |
 | IDS OS | Ubuntu 22.04.5 LTS |
 | Testing OS | Windows |
 | Network Interface | ens33 |
 | Ubuntu IP | 192.168.192.129 |
+| Windows IP | 192.168.192.1 |
 | Detection Type | Network traffic monitoring |
 
 ## Detection Rules
@@ -28,63 +29,34 @@ The project contains custom Snort rules for:
 - SSH
 - HTTP
 
-Example:
+### Custom Rules
 
 ```text
-alert icmp any any -> 192.168.192.129 any (msg:"ICMP Packet found"; sid:1000001; rev:1;)
-alert tcp any any -> 192.168.192.129 21 (msg:"FTP Packet found"; sid:1000002; rev:1;)
-alert tcp any any -> 192.168.192.129 22 (msg:"SSH Packet found"; sid:1000003; rev:1;)
-alert tcp any any -> 192.168.192.129 80 (msg:"HTTP Packet found"; sid:1000004; rev:1;)
+alert icmp any any <> 192.168.192.129 any (msg:"ICMP Packet found"; sid:1000001; rev:1;)
+alert tcp any any -> any 21 (msg:"FTP Packet found"; sid:1000002; rev:1;)
+alert tcp any any -> any 22 (msg:"SSH Packet found"; sid:1000003; rev:1;)
+alert tcp any any -> any 80 (msg:"HTTP Packet found"; sid:1000004; rev:1;)
+```
 
-## Testing
+## Snort Configuration
 
-Network connectivity was tested from Windows to the Ubuntu Snort machine.
+The Snort configuration was tested using:
 
-### ICMP Test
+```bash
+sudo snort -T -c /etc/snort/snort.conf
+```
 
-```text
-ping 192.168.192.129
+The configuration was successfully validated.
 
-The Windows machine successfully received replies from the Ubuntu system.
+Snort was then started in console alert mode:
 
-### FTP Test
-
-```text
-ftp 192.168.192.129
-
-The FTP service responded successfully.
-
-### SSH Test
-
-```text
-ssh ankit@192.168.192.129| IDS OS | Ubuntu 22.04.5 LTS |
-| Testing OS | Windows |
-| Network Interface | ens33 |
-| Ubuntu IP | 192.168.192.129 |
-| Detection Type | Network traffic monitoring |
-
-## Detection Rules
-
-The project contains custom Snort rules for:
-
-- ICMP
-- FTP
-- SSH
-- HTTP
-
-Example:
-
-```text
-alert icmp any any -> 192.168.192.129 any (msg:"ICMP Packet found"; sid:1000001; rev:1;)
-alert tcp any any -> 192.168.192.129 21 (msg:"FTP Packet found"; sid:1000002; rev:1;)
-alert tcp any any -> 192.168.192.129 22 (msg:"SSH Packet found"; sid:1000003; rev:1;)
-alert tcp any any -> 192.168.192.129 80 (msg:"HTTP Packet found"; sid:1000004; rev:1;)
-
+```bash
+sudo snort -A console -q -u snort -g snort -c /etc/snort/snort.conf -i ens33
 ```
 
 ## Testing
 
-Network connectivity was tested from Windows to the Ubuntu Snort machine.
+Network traffic was generated from the Windows testing machine to the Ubuntu Snort machine.
 
 ### ICMP Test
 
@@ -92,7 +64,7 @@ Network connectivity was tested from Windows to the Ubuntu Snort machine.
 ping 192.168.192.129
 ```
 
-The Windows machine successfully received replies from the Ubuntu system.
+Snort detected the ICMP traffic and generated an alert.
 
 ### FTP Test
 
@@ -100,7 +72,7 @@ The Windows machine successfully received replies from the Ubuntu system.
 ftp 192.168.192.129
 ```
 
-The FTP service responded successfully.
+Snort detected traffic to TCP port 21 and generated an FTP alert.
 
 ### SSH Test
 
@@ -108,7 +80,45 @@ The FTP service responded successfully.
 ssh ankit@192.168.192.129
 ```
 
-An SSH connection to the Ubuntu system was successfully established.
+Snort detected traffic to TCP port 22 and generated an SSH alert.
+
+### HTTP Test
+
+HTTP traffic was generated toward TCP port 80.
+
+Snort detected the traffic and generated an HTTP alert.
+
+## Evidence
+
+The following screenshots demonstrate the installation, configuration, custom rules, and IDS alerts.
+
+### 1. Snort Installation
+
+![Snort Installation](01-snort-installation.png)
+
+### 2. Snort Configuration
+
+![Snort Configuration](02-snort-config.png)
+
+### 3. Custom Local Rules
+
+![Local Rules](03-local-rules.png)
+
+### 4. ICMP Alert
+
+![ICMP Alert](04-icmp-alert.png)
+
+### 5. FTP Alert
+
+![FTP Alert](05-ftp-alert.png)
+
+### 6. SSH Alert
+
+![SSH Alert](06-ssh-alert.png)
+
+### 7. HTTP Alert
+
+![HTTP Alert](07-http-alert.png)
 
 ## Project Structure
 
@@ -116,38 +126,33 @@ An SSH connection to the Ubuntu system was successfully established.
 snort-ids-lab/
 ├── README.md
 ├── LICENSE
-├── .gitignore
 ├── rules/
 │   └── local.rules
+├── reports/
+│   ├── local.rules
+│   └── snort.conf
 ├── screenshots/
 ├── evidence/
+├── logs/
 └── docs/
-```
-
-## Snort Configuration
-
-Test the Snort configuration:
-
-```bash
-sudo snort -T -c /etc/snort/snort.conf
-```
-
-Run Snort:
-
-```bash
-sudo snort -A console -q -u snort -g snort -c /etc/snort/snort.conf -i ens33
 ```
 
 ## Learning Objectives
 
 - Understand IDS concepts
-- Configure Snort
+- Install and configure Snort
 - Create custom Snort rules
 - Monitor network traffic
 - Detect ICMP traffic
-- Detect TCP traffic on common service ports
+- Detect FTP traffic
+- Detect SSH traffic
+- Detect HTTP traffic
 - Analyze IDS alerts
 - Practice network security monitoring in a controlled lab
+
+## Conclusion
+
+This lab demonstrates a basic Snort-based IDS environment using Ubuntu and Windows virtual machines. Custom detection rules were created and successfully tested against ICMP, FTP, SSH, and HTTP traffic.
 
 ## Disclaimer
 
